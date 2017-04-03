@@ -22,20 +22,38 @@ if(MINGW)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas")
 endif()
 
+if(EMSCRIPTEN)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_ZLIB=1")
+endif()
+
+
 set(CMAKE_BUILD_TYPE Debug)
 
-find_package(ZLIB REQUIRED)
+if (NOT EMSCRIPTEN)
+    find_package(ZLIB REQUIRED)
 
-include_directories(
-  ${ZLIB_INCLUDE_DIRS}
-  ../dependencies/nanogui/ext/glfw/include
-  ../dependencies/nanogui/ext/glew/include
-  ../dependencies/nanogui/ext/eigen
-  ../dependencies/lodepng
-  ../dependencies/optional-lite
-  ../dependencies/tinyobjloader
-  include
-  )
+    include_directories(
+      ${ZLIB_INCLUDE_DIRS}
+      ../dependencies/nanogui/ext/glfw/include
+      ../dependencies/nanogui/ext/glew/include
+      ../dependencies/nanogui/ext/eigen
+      ../dependencies/lodepng
+      ../dependencies/optional-lite
+      ../dependencies/tinyobjloader
+      include
+      )
+else ()
+    include_directories(
+      ${ZLIB_INCLUDE_DIRS}
+      #../dependencies/nanogui/ext/glfw/include
+      #../dependencies/nanogui/ext/glew/include
+      ../dependencies/nanogui/ext/eigen
+      ../dependencies/lodepng
+      ../dependencies/optional-lite
+      ../dependencies/tinyobjloader
+      include
+      )
+endif ()
 
 FILE(
   GLOB SOURCE_FILES

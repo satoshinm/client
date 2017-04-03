@@ -46,8 +46,9 @@ add_subdirectory(lib)
 
 set(CMAKE_BUILD_TYPE Debug)
 
-find_package(ZLIB REQUIRED)
-if (not EMSCRIPTEN)
+if (NOT EMSCRIPTEN)
+    find_package(ZLIB REQUIRED)
+
     include_directories(
       dependencies/nanogui/include
       dependencies/nanogui/ext/glfw/include
@@ -75,7 +76,7 @@ FILE(
 
 add_executable(konstructs ${SOURCE_FILES})
 
-if (not EMSCRIPTEN)
+if (NOT EMSCRIPTEN)
     set(konstructs_LIBS
         konstructs-lib
         ${ZLIB_LIBRARIES}
