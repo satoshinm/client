@@ -47,15 +47,27 @@ add_subdirectory(lib)
 set(CMAKE_BUILD_TYPE Debug)
 
 find_package(ZLIB REQUIRED)
-include_directories(
-  dependencies/nanogui/include
-  dependencies/nanogui/ext/glfw/include
-  dependencies/nanogui/ext/glew/include
-  dependencies/nanogui/ext/eigen
-  dependencies/nanogui/ext/nanovg/src
-  dependencies/optional-lite
-  dependencies/tinyobjloader
-  lib/include)
+if (not EMSCRIPTEN)
+    include_directories(
+      dependencies/nanogui/include
+      dependencies/nanogui/ext/glfw/include
+      dependencies/nanogui/ext/glew/include
+      dependencies/nanogui/ext/eigen
+      dependencies/nanogui/ext/nanovg/src
+      dependencies/optional-lite
+      dependencies/tinyobjloader
+      lib/include)
+else ()
+    include_directories(
+      dependencies/nanogui/include
+      #dependencies/nanogui/ext/glfw/include
+      #dependencies/nanogui/ext/glew/include
+      dependencies/nanogui/ext/eigen
+      dependencies/nanogui/ext/nanovg/src
+      dependencies/optional-lite
+      dependencies/tinyobjloader
+      lib/include)
+endif ()
 
 FILE(
   GLOB SOURCE_FILES
@@ -63,12 +75,22 @@ FILE(
 
 add_executable(konstructs ${SOURCE_FILES})
 
-set(konstructs_LIBS
-    konstructs-lib
-    ${ZLIB_LIBRARIES}
-    nanogui ${NANOGUI_EXTRA_LIBS}
-	glfw
-)
+if (not EMSCRIPTEN)
+    set(konstructs_LIBS
+        konstructs-lib
+        ${ZLIB_LIBRARIES}
+        nanogui ${NANOGUI_EXTRA_LIBS}
+        glfw
+    )
+else ()
+    set(konstructs_LIBS
+        konstructs-lib
+        ${ZLIB_LIBRARIES}
+        nanogui ${NANOGUI_EXTRA_LIBS}
+        #glfw
+    )
+
+endif ()
 
 if(WIN32 OR MINGW)
     set(konstructs_LIBS ${konstructs_LIBS} ws2_32.lib)
