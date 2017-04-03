@@ -11,14 +11,14 @@ const float N = 0.5;
 
 /* This table contains all required vertexes for the different voxels.
  */
-uniform vec3 positions[16];
+varying vec3 positions[16];
 
 /*
  * This table contain normal vectors (the vector that points
  * perpendicular to the the plane formed by the triangle).
  * There are 6 normals, one for direction and axis.
  */
-uniform vec3 normals[6];
+varying vec3 normals[6];
 
 /* Data offsets and mask */
 
@@ -134,40 +134,40 @@ void main() {
     /* Extract data from x component */
     int d1 = int(data.x);
 
-    // TODO: replace bitwise operators (bit-wise operator supported in GLSL ES 3.00 and above only)
+    // IMPORTANT TODO: replace bitwise operators (bit-wise operator supported in GLSL ES 3.00 and above only)
     /* Extract the block face index (0 - 5) */
-    int normal = (d1 >> OFF_NORMAL) & MASK_NORMAL;
+    int normal = 0;//(d1 >> OFF_NORMAL) & MASK_NORMAL;
 
     /* Extract the corner of the face (0 - 3) */
-    int vertex = (d1 >> OFF_VERTEX) & MASK_VERTEX;
+    int vertex = 0;//(d1 >> OFF_VERTEX) & MASK_VERTEX;
 
     /* Extract the amount of ambient occlusion */
-    int ao = (d1 >> OFF_AO) & MASK_AO;
+    int ao = 0;//(d1 >> OFF_AO) & MASK_AO;
 
     /* Extract block damage UV */
-    int damage_u = (d1 >> OFF_DAMAGE_U) & MASK_DAMAGE_U;
-    int damage_v = (d1 >> OFF_DAMAGE_V) & MASK_DAMAGE_V;
+    int damage_u = 0;//(d1 >> OFF_DAMAGE_U) & MASK_DAMAGE_U;
+    int damage_v = 0;//(d1 >> OFF_DAMAGE_V) & MASK_DAMAGE_V;
 
     /* Extract block position */
-    int x = (d1 >> OFF_X) & MASK_POS;
-    int y = (d1 >> OFF_Y) & MASK_POS;
-    int z = (d1 >> OFF_Z) & MASK_POS;
+    int x = 0;//(d1 >> OFF_X) & MASK_POS;
+    int y = 0;//(d1 >> OFF_Y) & MASK_POS;
+    int z = 0;//(d1 >> OFF_Z) & MASK_POS;
 
     /* Extract data from y component */
-    int d2 = data.y;
+    int d2 = int(data.y);
 
     /* Extract the block type texture index */
-    int du = (d2 >> OFF_DU) & MASK_UV;
-    int dv = (d2 >> OFF_DV) & MASK_UV;
+    int du = 0;//(d2 >> OFF_DU) & MASK_UV;
+    int dv = 0;//(d2 >> OFF_DV) & MASK_UV;
 
     /* Extract the ambient light */
-    int al = (d2 >> OFF_AL) & MASK_AL;
+    int al = 0;//(d2 >> OFF_AL) & MASK_AL;
 
     /* Extract light */
-    int r = (d2 >> OFF_R) & MASK_R;
-    int g = (d2 >> OFF_G) & MASK_G;
-    int b = (d2 >> OFF_B) & MASK_B;
-    int light_level = (d2 >> OFF_LIGHT) & MASK_LIGHT;
+    int r = 0;//(d2 >> OFF_R) & MASK_R;
+    int g = 0;//(d2 >> OFF_G) & MASK_G;
+    int b = 0;//(d2 >> OFF_B) & MASK_B;
+    int light_level = 0;//(d2 >> OFF_LIGHT) & MASK_LIGHT;
 
     /* All values extracted, shader code starts here */
 
@@ -193,10 +193,11 @@ positions[11] = vec3(+0, +N, +N); //11
 positions[12] = vec3(-N, -N, +0); //12
 positions[13] = vec3(-N, +N, +0); //13
 positions[14] = vec3(+N, -N, +0); //14
-positions[15] = vec3(+N, +N, +0)  //15
+positions[15] = vec3(+N, +N, +0); //15
 
     /* Calculate the vertex position within the chunk by applying the block translation */
-    vec4 position = block_translation * vec4(positions[vertex], 1);
+    //vec4 position = block_translation * vec4(positions[vertex], 1); // TODO: 'Index expression must be constant'!
+    vec4 position = block_translation * vec4(positions[0], 1);
 
     /* Calculate the global position of the vertex by applying the chunk translation */
     vec4 global_position = translation * position;
@@ -219,10 +220,10 @@ positions[15] = vec3(+N, +N, +0)  //15
     fragment_ao = (1.0 - float(ao) * 0.03125 * 0.7);
 
     /* Calculate UV coordinates */
-    fragment_uv = vec2(du * S, dv * S);
-    damage_uv = vec2(damage_u * DS, damage_v);
+    fragment_uv = vec2(float(du) * S, float(dv) * S);
+    damage_uv = vec2(float(damage_u) * DS, float(damage_v));
 
-    damage_factor = (damage_u * DS) * damage_weight;
+    damage_factor = (float(damage_u) * DS) * float(damage_weight);
 
 normals[0] = vec3(-1, 0, 0); //0
 normals[1] = vec3(+1, 0, 0); //1
@@ -231,11 +232,12 @@ normals[3] = vec3(0, -1, 0); //3
 normals[4] = vec3(0, 0, -1); //4
 normals[5] = vec3(0, 0, +1);  //5
 
-    diffuse = clamp(dot(normals[normal], light_direction), 0.0, 1.0);
+    //diffuse = clamp(dot(normals[normal], light_direction), 0.0, 1.0); // TODO: 'Index expression must be constant'!
+    diffuse = clamp(dot(normals[0], light_direction), 0.0, 1.0);
 
     float camera_distance = distance(camera, vec3(global_position));
     fog_factor = pow(clamp(camera_distance / fog_distance, 0.0, 1.0), 4.0);
     float dy = global_position.y - camera.y;
     float dx = distance(global_position.xz, camera.xz);
-    fog_height = (atan(dy, dx) + PI / 2) / PI;
+    fog_height = (atan(dy, dx) + PI / 2.0) / PI;
 }
