@@ -68,7 +68,7 @@ else ()
       dependencies/optional-lite
       dependencies/tinyobjloader
       lib/include)
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s USE_GLFW=3")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s USE_GLFW=3 --embed-file ../shaders/")
   set(CMAKE_EXECUTABLE_SUFFIX ".html")
 endif ()
 
