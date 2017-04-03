@@ -156,6 +156,34 @@ namespace konstructs {
         ShaderProgram(
             "hud",
 
+#ifdef __EMSCRIPTEN__
+            "uniform vec4 offset;\n"
+            "uniform mat4 matrix;\n"
+            "attribute vec3 position;\n"
+            "attribute vec3 normal;\n"
+            "attribute vec4 uv;\n"
+            "varying vec2 fragment_uv;\n"
+            "varying float diffuse;\n"
+            "const vec3 light_direction = normalize(vec3(1.0, 0.5, 0.0));\n"
+            "void main() {\n"
+            "    fragment_uv = uv.xy;\n"
+            "    diffuse = max(0.0, dot(normal, light_direction));\n"
+            "    gl_Position = vec4(position, 1.0) * matrix + offset;\n"
+            "}\n",
+            "uniform sampler2D sampler;\n"
+            "varying vec2 fragment_uv;\n"
+            "varying float diffuse;\n"
+            "const vec3 light_color = vec3(1.0, 1.0, 1.0);\n"
+            "void main() {\n"
+            "    vec4 color = vec4(texture(sampler, fragment_uv));\n"
+            "    if (color.xyz == vec3(1.0, 0.0, 1.0)) {\n"
+            "        discard;\n"
+            "    }\n"
+            "    float fr_a = max(color.a, 0.7f);\n"
+            "    gl_FragColor = vec4(mix(color.xyz, light_color * diffuse, 0.2), fr_a);\n"
+            "}\n"),
+
+#else
             "#version 330\n"
             "uniform vec4 offset;\n"
             "uniform mat4 matrix;\n"
@@ -184,6 +212,7 @@ namespace konstructs {
             "    float fr_a = max(color.a, 0.7f);\n"
             "    fragColor = vec4(mix(color.xyz, light_color * diffuse, 0.2), fr_a);\n"
             "}\n"),
+#endif
         position(attributeId("position")),
         normal(attributeId("normal")),
         uv(attributeId("uv")),

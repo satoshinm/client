@@ -35,6 +35,25 @@ namespace konstructs {
                          const float _near_distance) :
         ShaderProgram(
             "sky",
+#ifdef __EMSCRIPTEN__
+            "precision mediump float;\n"
+            "uniform mat4 matrix;\n"
+            "attribute vec4 position;\n"
+            "attribute vec2 uv;\n"
+            "varying vec2 fragment_uv;\n"
+            "void main() {\n"
+            "    gl_Position = matrix * position;\n"
+            "    fragment_uv = uv;\n"
+            "}\n",
+            "precision mediump float;\n"
+            "uniform sampler2D sampler;\n"
+            "uniform float timer;\n"
+            "varying vec2 fragment_uv;\n"
+            "void main() {\n"
+            "    vec2 uv = vec2(timer, fragment_uv.t);\n"
+            "    gl_FragColor = texture2D(sampler, uv);\n"
+            "}\n"),
+#else
             "#version 330\n"
             "uniform mat4 matrix;\n"
             "in vec4 position;\n"
@@ -53,6 +72,7 @@ namespace konstructs {
             "    vec2 uv = vec2(timer, fragment_uv.t);\n"
             "    frag_color = texture(sampler, uv);\n"
             "}\n"),
+#endif
         position_attr(attributeId("position")),
         uv_attr(attributeId("uv")),
         matrix(uniformId("matrix")),

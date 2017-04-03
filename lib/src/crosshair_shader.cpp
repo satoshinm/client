@@ -6,6 +6,19 @@ namespace konstructs {
     CrosshairShader::CrosshairShader() :
         ShaderProgram(
             "crosshair",
+#ifdef __EMSCRIPTEN__
+            "precision mediump float;\n"
+            "uniform mat4 projection;\n"
+            "attribute vec4 position;\n"
+            "void main() {\n"
+            "    gl_Position = projection * position;\n"
+            "}\n",
+            "precision mediump float;\n"
+            "uniform vec4 color;\n"
+            "void main() {\n"
+            "    gl_FragColor = vec4(color);\n"
+            "}\n",
+#else
             "#version 330\n"
             "uniform mat4 projection;\n"
             "in vec4 position;\n"
@@ -18,6 +31,7 @@ namespace konstructs {
             "void main() {\n"
             "    fragColor = vec4(color);\n"
             "}\n",
+#endif
             GL_LINES),
         projection(uniformId("projection")),
         position(attributeId("position")),

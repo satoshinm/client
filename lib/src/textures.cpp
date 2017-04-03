@@ -129,10 +129,18 @@ namespace konstructs {
     }
 
     std::string load_chunk_vertex_shader() {
+#ifdef __EMSCRIPTEN__
+        return load_shader("webgl-chunk.vert");
+#else
         return load_shader("chunk.vert");
+#endif
     }
 
     std::string load_chunk_fragment_shader() {
+#ifdef __EMSCRIPTEN__
+        return load_shader("webgl-chunk.frag");
+#else
         return load_shader("chunk.frag");
+#endif
     }
 };

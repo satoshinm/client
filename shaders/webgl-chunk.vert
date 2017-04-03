@@ -1,4 +1,4 @@
-#version 330
+
 
 /* Look-up tables for reconstructing cube vertices and normals.
  * They are all allocated as uniforms since for arrays this is faster
@@ -124,31 +124,31 @@ uniform float fog_distance;
 uniform mat4 translation;
 
 /* The per vertex data as described above */
-in uvec2 data;
+attribute uvec2 data;
 
 /* Output to fragment shader */
 
 /* UV coordinates in texture space */
-out vec2 fragment_uv;
-out vec2 damage_uv;
+varying vec2 fragment_uv;
+varying vec2 damage_uv;
 
 /* Damage */
-flat out float damage_factor;
+flat varying float damage_factor;
 
 /* The ambient value */
-out float ambient;
-out float fragment_ao;
+varying float ambient;
+varying float fragment_ao;
 
 
 
 /* The light value */
-out vec3 light;
+varying vec3 light;
 
-out float fog_factor;
-out float fog_height;
+varying float fog_factor;
+varying float fog_height;
 
 /* Diffuse lightning a.k.a. the sun */
-out float diffuse;
+varying float diffuse;
 
 const float PI = 3.14159265;
 const vec3 light_direction = normalize(vec3(-1.0, 1.0, -1.0));

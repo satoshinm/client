@@ -39,6 +39,18 @@ namespace konstructs {
                                      const float _near_distance, const float scale) :
         ShaderProgram(
             "chunk",
+#ifdef __EMSCRIPTEN__
+            "uniform mat4 matrix;\n"
+            "uniform mat4 translation;\n"
+            "attribute vec4 position;\n"
+            "void main() {\n"
+            "    vec4 global_position = translation * position;\n"
+            "    gl_Position = matrix * global_position;\n"
+            "}\n",
+            "void main() {\n"
+            "    gl_FragColor = vec4(0.1, 0.1, 0.1, 1.0);\n"
+            "}\n",
+#else
             "#version 330\n"
             "uniform mat4 matrix;\n"
             "uniform mat4 translation;\n"
@@ -52,6 +64,7 @@ namespace konstructs {
             "void main() {\n"
             "    frag_color = vec4(0.1, 0.1, 0.1, 1.0);\n"
             "}\n",
+#endif
             GL_LINES),
         position_attr(attributeId("position")),
         matrix(uniformId("matrix")),

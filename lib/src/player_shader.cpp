@@ -20,6 +20,57 @@ namespace konstructs {
                                tinyobj::shape_t &shape) :
         ShaderProgram(
             "player",
+#ifdef __EMSCRIPTEN__
+            "uniform mat4 matrix;\n"
+            "uniform vec3 camera;\n"
+            "uniform float fog_distance;\n"
+            "uniform mat4 translation;\n"
+            "attribute vec4 position;\n"
+            "attribute vec3 normal;\n"
+            "attribute vec2 uv;\n"
+            "varying vec2 fragment_uv;\n"
+            "varying float fog_factor;\n"
+            "varying float fog_height;\n"
+            "varying float diffuse;\n"
+            "const float pi = 3.14159265;\n"
+            "const vec3 light_direction = normalize(vec3(-1.0, 1.0, -1.0));\n"
+            "void main() {\n"
+            "    vec4 global_position = translation * position;\n"
+            "    gl_Position = matrix * global_position;\n"
+            "    fragment_uv = uv.xy;\n"
+            "    diffuse = max(0.0, dot(normal, light_direction));\n"
+            "    float camera_distance = distance(camera, vec3(global_position));\n"
+            "    fog_factor = pow(clamp(camera_distance / fog_distance, 0.0, 1.0), 4.0);\n"
+            "    float dy = global_position.y - camera.y;\n"
+            "    float dx = distance(global_position.xz, camera.xz);\n"
+            "    fog_height = (atan(dy, dx) + pi / 2) / pi;\n"
+            "}\n",
+            "uniform sampler2D sampler;\n"
+            "uniform sampler2D sky_sampler;\n"
+            "uniform float timer;\n"
+            "uniform float daylight;\n"
+            "varying vec2 fragment_uv;\n"
+            "varying float fog_factor;\n"
+            "varying float fog_height;\n"
+            "varying float diffuse;\n"
+            "const float pi = 3.14159265;\n"
+            "void main() {\n"
+            "    vec3 color = vec3(texture(sampler, fragment_uv));\n"
+            "    if (color == vec3(1.0, 0.0, 1.0)) {\n"
+            "        discard;\n"
+            "    }\n"
+            "    float df = diffuse;\n"
+            "    float value = min(1.0, daylight);\n"
+            "    vec3 light_color = vec3(value * 0.3 + 0.2);\n"
+            "    vec3 ambient = vec3(value * 0.3 + 0.2) + vec3(sin(pi*daylight)/2, sin(pi*daylight)/4, 0.0);\n"
+            "    vec3 light = ambient + light_color * df;\n"
+            "    color = clamp(color * light, vec3(0.0), vec3(1.0));\n"
+            "    vec3 sky_color = vec3(texture(sky_sampler, vec2(timer, fog_height)));\n"
+            "    color = mix(color, sky_color, fog_factor);\n"
+            "    gl_FragColor = vec4(color, 1.0);\n"
+            "}\n"),
+#
+#else
             "#version 330\n"
             "uniform mat4 matrix;\n"
             "uniform vec3 camera;\n"
@@ -71,6 +122,7 @@ namespace konstructs {
             "    color = mix(color, sky_color, fog_factor);\n"
             "    frag_color = vec4(color, 1.0);\n"
             "}\n"),
+#endif
         position_attr(attributeId("position")),
         normal_attr(attributeId("normal")),
         uv_attr(attributeId("uv")),
